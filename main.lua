@@ -3,14 +3,20 @@ maxScoreFile = love.filesystem.getWorkingDirectory( ) .. '/data/savedData.txt'
 print(maxScoreFile)
 
 function love.load()
-	maxScore = nil
-	file = io.open(maxScoreFile, "w")
-	maxScore = file:read()
-	if not maxScore then
+	maxScore = 0
+	file = io.open(maxScoreFile, "r+")
+
+	if not file then
+		file = io.open(maxScoreFile, "w")
 		file:write("0")
-		maxScore = 0
+	else
+		maxScore = file:read("*number")
+		if not maxScore then
+			maxScore = 0
+		end
 	end
-	print("maxScore="..maxScore)
+	file:close()
+	-- print("maxScore="..maxScore)
 
 	custom_font = love.graphics.newFont("fonts/ARCADECLASSIC.TTF", 50) --https://www.1001fonts.com/retro+pixel-fonts.html
 
@@ -79,6 +85,13 @@ function love.update(dt)
 					b.dead = true
 					z.dead = true
 					localScore = localScore + 1
+					--updating max score
+					if maxScore and localScore > maxScore then
+						local file = io.open(maxScoreFile, "w")
+						file:write(localScore)
+						file:close()
+						maxScore = localScore
+					end
 					break
 				end
 			end
@@ -112,6 +125,7 @@ end
 function love.keypressed(key)
 	if key == 'escape' then
 		print("closing game...")
+		-- if file then file:close() end
 		love.event.quit()
 	end
 
