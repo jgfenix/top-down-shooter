@@ -1,8 +1,10 @@
 showFPSOn = true
 maxScoreFile = love.filesystem.getWorkingDirectory( ) .. '/data/savedData.txt'
-print(maxScoreFile)
+-- print(maxScoreFile)
 
 function love.load()
+	love.window.setTitle("Kill the Zombies!")
+
 	maxScore = 0
 	file = io.open(maxScoreFile, "r+")
 
@@ -36,10 +38,11 @@ function love.load()
 	bullets = {}
 
 	localScore = 0
+
+	gameState = 0 -- 0= 'menu'/waiting to begin, 1 = gamming, 3= game over
 end
 
 function love.update(dt)
-
 	if love.keyboard.isDown('d') and
 		player.x + player.speed * dt < love.graphics.getWidth() then
 			player.x = player.x + player.speed * dt
@@ -57,6 +60,8 @@ function love.update(dt)
 			player.y = player.y + player.speed * dt
 	end
 
+	if gameState == 0 then return end
+
 	spawnZombie()
 
 	for i, z in ipairs(zombies) do
@@ -66,8 +71,10 @@ function love.update(dt)
 		--colision between zombie and player
 		if distanceBetween(z.x, z.y, player.x, player.y) < 30 then
 			z.dead =  true
-			if player.life > 0 then
+			if player.life > 1 then
 				player.life = player.life - 1
+			else
+				gameState = 2 --game over
 			end
 		end
 	end
@@ -102,8 +109,8 @@ function love.update(dt)
 	for i=#bullets,1, -1 do
 		b = bullets[i]
 		if b.x < 0 or b.x > love.graphics.getWidth() or
-		   b.y < 0 or b.y > love.graphics.getHeight() or b.dead then
-		   	table.remove(bullets, i)
+			b.y < 0 or b.y > love.graphics.getHeight() or b.dead then
+				table.remove(bullets, i)
 		end
 	end
 
@@ -111,20 +118,28 @@ function love.update(dt)
 	for i=#zombies,1, -1 do
 		z = zombies[i]
 		if z.dead then
-		   	table.remove(zombies, i)
+			table.remove(zombies, i)
 		end
 	end
 end
 
 function love.mousepressed(x, y, button)
-	if button == 1 then -- left
+	if button == 1 then -- left button mouse
 		spawnBullet()
-	end 
+		if gameState == 0 then gameState = 1
+		elseif gameState == 2 then
+			player.life = 3
+			localScore = 0
+			gameState = 1
+			zombies = {}
+			bullets = {}
+		end
+	end
 end
 
 function love.keypressed(key)
 	if key == 'escape' then
-		print("closing game...")
+		-- print("closing game...")
 		-- if file then file:close() end
 		love.event.quit()
 	end
@@ -140,6 +155,21 @@ function love.draw()
 
 	love.graphics.draw(sprites.player, player.x, player.y, playerMouseAngle(), nil, nil, sprites.player:getWidth()/2, sprites.player:getHeight()/2)
 
+	if gameState == 0 then
+		local beginMessage = love.graphics.newText(custom_font, {{1, 1, 1},  "Click anywhere to begin!" })
+			love.graphics.draw(beginMessage, 100, love.graphics.getHeight()/2 - love.graphics.getHeight()/3)
+		return
+	end
+
+	if gameState == 2 then
+		local gameOverMessage = love.graphics.newText(custom_font, {{1, 0, 0},  "GAME OVER!" })
+			love.graphics.draw(gameOverMessage, 24, love.graphics.getHeight()/2 - love.graphics.getHeight()/3, nil, 3, 3)
+
+		local beginMessage = love.graphics.newText(custom_font, {{1, 1, 1},  "Click anywhere to begin!" })
+			love.graphics.draw(beginMessage, 100, love.graphics.getHeight()/2.5)
+		return
+	end
+
 	for i, z in ipairs(zombies) do
 		love.graphics.draw(sprites.zombie, z.x, z.y, zombiePlayerAngle(z), nil, nil, sprites.zombie:getWidth()/2, sprites.zombie:getHeight()/2)
 	end
@@ -149,10 +179,10 @@ function love.draw()
 	end
 
 	local lifeOnScreen = love.graphics.newText(custom_font, {{1, 1, 1},  "Life     "..player.life })
-    love.graphics.draw(lifeOnScreen, 5, 2)
+	love.graphics.draw(lifeOnScreen, 5, 2)
 
 	local scoreOnScreen = love.graphics.newText(custom_font, {{1, 1, 1},  "Score "..localScore })
-    love.graphics.draw(scoreOnScreen, 5, 40)
+	love.graphics.draw(scoreOnScreen, 5, 40)
 
 	if showFPSOn then love.graphics.print("FPS: "..tostring(love.timer.getFPS( )), 5, 90) end
 
