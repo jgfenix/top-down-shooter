@@ -143,11 +143,6 @@ function love.keypressed(key)
 		-- if file then file:close() end
 		love.event.quit()
 	end
-
-	if key == 'space' then
-		player.gun.dispare()
-	end
-
 end
 
 function love.draw()
