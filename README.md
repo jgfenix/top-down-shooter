@@ -3,7 +3,7 @@ Simple project for another lesson of course 'Lua Programming and Game Developmen
 ### In this game you control a guy using keys [WASD] and left button's mouse to shoot as many zombies as you can
 
 ## Rules:
-- :triangular_flag_on_post: You have 3 lifes :heart:, you'll lose 1 life everytime a zombie touchs you :biohazard:
+- :triangular_flag_on_post: You have 2 lifes :heart:, you'll lose 1 life when a zombie touchs you :biohazard:, BUT you can run faster to try to survive (you character will be in red color in this situation)!
 - :triangular_flag_on_post: You can move around screen by using keyboard's keys W A S D
 - :triangular_flag_on_post: Hit zombies by click with mouse's left button :computer_mouse: :gun:
 

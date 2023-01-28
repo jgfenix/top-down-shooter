@@ -40,7 +40,7 @@ function love.load()
 	player.x = love.graphics.getWidth() / 2
 	player.y = love.graphics.getHeight() / 2
 	player.speed = 180
-	player.life = 3
+	player.life = 2
 
 	maxScore = utils.getMaxScore()
 end
@@ -78,6 +78,7 @@ function love.update(dt)
 			z.dead =  true
 			if player.life > 1 then
 				player.life = player.life - 1
+				player.speed = 300
 			else
 				player.life = 0
 				currentGameState = gameStates.GAME_OVER
@@ -135,7 +136,8 @@ function love.mousepressed(x, y, mouseButton)
 
 		if currentGameState == gameStates.WAITING then currentGameState = gameStates.GAMMING
 		elseif currentGameState == gameStates.GAME_OVER then
-			player.life = 3
+			player.life = 2
+			player.speed = 180
 			currentGameScore = 0
 			currentGameState = gameStates.GAMMING
 			zombies = {}
@@ -151,7 +153,14 @@ end
 function love.draw()
 	love.graphics.draw(sprites.background, 0, 0)
 
-	love.graphics.draw(sprites.player, player.x, player.y, playerMouseAngle(), nil, nil, sprites.player:getWidth()/2, sprites.player:getHeight()/2)
+	if player.life > 1 then
+		love.graphics.setColor(1, 1, 1, 1)
+		love.graphics.draw(sprites.player, player.x, player.y, playerMouseAngle(), nil, nil, sprites.player:getWidth()/2, sprites.player:getHeight()/2)
+	else
+		love.graphics.setColor(.8, 0, 0, 1)
+		love.graphics.draw(sprites.player, player.x, player.y, playerMouseAngle(), nil, nil, sprites.player:getWidth()/2, sprites.player:getHeight()/2)
+		love.graphics.setColor(1, 1, 1, 1)
+	end
 
 	local lifeStr = love.graphics.newText(custom_font, {{1, 1, 1},  "Life     "..player.life })
 	love.graphics.draw(lifeStr, 5, 2)
